@@ -3,31 +3,25 @@ import numpy as np
 import math
 import threading
 from tkinter import font
-# import view
 import tkinter as tk
 import queue
 import time
 import tkfontchooser
 
-# cv2.namedWindow('road')
-# cap = cv2.VideoCapture('test2.mp4')
-# while cap.isOpened():
-#     _, frame = cap.read()
-#     cv2.imshow('road', frame)
-#     key_pressed = cv2.waitKey(1)
-#     if key_pressed == ord('q'):
-#         break
-# cap.release()
-# cv2.destroyAllWindows()
 
+# init def
 request_queue = queue.Queue()
 result_queue = queue.Queue()
 t = None
 COOLDOWN = 5
 LAST_TIME = time.time()
+
+
+# command string
 class command:
     com = ""
 
+# channel global variables
 class channel:
     index = 0
     isPlaying = True
@@ -57,7 +51,7 @@ def submit_to_tkinter(cb, *args, **kwargs):
     return result_queue.get()
 
 
-def main_tk_thread():
+def tk_thread():
     global t
 
     def timertick():
@@ -73,17 +67,13 @@ def main_tk_thread():
 
     # create main Tk window
     t = tk.Tk()
-    t.title("Debug controls")
+    t.title("Debug control")
     t.geometry('%dx%d+%d+%d' % (400, 100, 850, 200))
     # set font for labels
     fontv = tkfontchooser.Font(family="Arial", size=18)
     # create buttons, labels
     fingers = tk.Label(t, name="fingers", text="None", font= fontv)
     fingers.place(x=20, y=10)
-    # hull = tk.Label(t, name="hull", text="None", font= fontv)
-    # hull.place(x=20, y=10)
-    # defects = tk.Label(t, name="defects", text="None", font=fontv)
-    # defects.place(x=20, y=60)
     command = tk.Label(t, name="command", text="None", font=fontv)
     command.place(x=20, y=60)
     # start timer a.k.a. scheduler
@@ -92,16 +82,13 @@ def main_tk_thread():
     t.mainloop()
 
 
-
 # setters for Tk GUI elements
-def fingers_label(a):
-    t.children["fingers"].configure(text=str("Fingers = %s " % a))
+def fingers_label(numOf):
+    t.children["fingers"].configure(text=str("Fingers = %s " % numOf))
 
-# def defects_label(a):
-#     t.children["defects"].configure(text=str("All defects = %s" % a))
 
-def command_label(a):
-    t.children["command"].configure(text=str("Command = %s" % a))
+def command_label(numOf):
+    t.children["command"].configure(text=str("Command = %s" % numOf))
 
 
 def exec(fingers_num):
@@ -116,8 +103,6 @@ def exec(fingers_num):
     elif fingers_num == 5:
         vol_down()
     submit_to_tkinter(fingers_label, str(fingers_num))
-    # submit_to_tkinter(hull_label, str(hull.shape[0]))
-    # submit_to_tkinter(defects_label, str(defects.shape[0]))
     if command.com:
         submit_to_tkinter(command_label, command.com)
 
@@ -130,7 +115,7 @@ def tv_thread():
     ch5 = './channels/ch5.mp4'
 
     all_channels = [ch1, ch2, ch3, ch4, ch5]
-    # channels_index = 0
+
     key_pressed = 0
     cv2.resizeWindow('tv', 160, 80)
     cap = ""
@@ -162,7 +147,7 @@ def tv_thread():
 
 
 if __name__ == '__main__':
-    threading.Thread(target=main_tk_thread).start()
+    threading.Thread(target=tk_thread).start()
     threading.Thread(target=tv_thread).start()
     # ininital definitions
     cam = cv2.VideoCapture(0)
