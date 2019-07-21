@@ -107,8 +107,18 @@ def cool_down():
 # endregion
 
 
+#region Angle Calculate
+def angle_calculate(start, end, far):
+    # find length of all sides of triangle
+    a = math.sqrt((end[0] - start[0]) ** 2 + (end[1] - start[1]) ** 2)
+    b = math.sqrt((far[0] - start[0]) ** 2 + (far[1] - start[1]) ** 2)
+    c = math.sqrt((end[0] - far[0]) ** 2 + (end[1] - far[1]) ** 2)
+    angle = math.acos((b ** 2 + c ** 2 - a ** 2) / (2 * b * c)) * 57
+    return angle
+#endregion
+
 # initial definitions
-COOL_DOWN = 5
+COOL_DOWN = 2
 LAST_TIME = time.time()
 
 cam = cv2.VideoCapture(0)
@@ -168,8 +178,8 @@ if __name__ == '__main__':
             hull = cv2.convexHull(hand_approx, returnPoints=False)   # returnPoints=False for finding defects
             defects = cv2.convexityDefects(hand_approx, hull)
 
-            # l = n. of defects
-            l = 0
+            # initial def
+            number_of_defects = 0
 
             # code for finding n. of defects due to fingers
             for i in range(defects.shape[0]):
@@ -177,38 +187,27 @@ if __name__ == '__main__':
                 start = tuple(hand_approx[s][0])
                 end = tuple(hand_approx[e][0])
                 far = tuple(hand_approx[f][0])
-                # pt = (100, 180)
 
-                # find length of all sides of triangle
-                a = math.sqrt((end[0] - start[0]) ** 2 + (end[1] - start[1]) ** 2)
-                b = math.sqrt((far[0] - start[0]) ** 2 + (far[1] - start[1]) ** 2)
-                c = math.sqrt((end[0] - far[0]) ** 2 + (end[1] - far[1]) ** 2)
-                s = (a + b + c) / 2
-                ar = math.sqrt(s * (s - a) * (s - b) * (s - c))
+                # find defect angle, angle>90 probably it not represent fingers
+                angle = angle_calculate(start, end, far)
 
-                # distance between point and convex hull
-                d = (2 * ar) / a
-
-
-                # apply cosine rule here
-                angle = math.acos((b ** 2 + c ** 2 - a ** 2) / (2 * b * c)) * 57
-
-                # ignore angles > 90 and ignore points very close to convex hull(they generally come due to noise)
-                if angle <= 90 and d > 30:
-                    l += 1
+                # exclude angles > 90 and ignore points very close to convex hull
+                # d = depth of defect
+                if angle <= 90 and d > 2000:
+                    number_of_defects += 1
                     cv2.circle(roi, far, 3, [255, 0, 0], -1)
 
                 # draw lines around hand
                 cv2.line(roi, start, end, [0, 255, 0], 2)
 
-            l += 1
+            number_of_defects += 1
 
             # print corresponding text which indicate hand reading
-            camera_print_text(l)
+            camera_print_text(number_of_defects)
 
             # delay, do not change command quickly, wait for 5 sec
             if cool_down() is False:
-                exec(l)
+                exec(number_of_defects)
 
             cv2.imshow('mask', mask)
             cv2.imshow('frame', frame)

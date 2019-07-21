@@ -48,7 +48,7 @@ def tk_thread():
     # set font for labels
     fontv = tkfontchooser.Font(family="Arial", size=18)
     # create buttons, labels
-    fingers = tk.Label(t, name="fingers", text="None", font= fontv)
+    fingers = tk.Label(t, name="fingers", text="None", font=fontv)
     fingers.place(x=20, y=10)
     command = tk.Label(t, name="command", text="None", font=fontv)
     command.place(x=20, y=60)
@@ -56,3 +56,6 @@ def tk_thread():
     timertick()
     # main Tk loop
     t.mainloop()
+
+
+
