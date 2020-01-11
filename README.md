@@ -7,3 +7,4 @@ opencv proj - remote control using human hand
 #### 4- Move Previous Channel
 
 ![image](example.gif = 250x250)
+<img src="example.gif" width="324" height="324">
