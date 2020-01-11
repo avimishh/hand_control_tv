@@ -6,4 +6,4 @@ opencv proj - remote control using human hand
 #### 3- Move Next Channel 
 #### 4- Move Previous Channel
 
-![image](example.gif)
+![image](example.gif = 250x250)
